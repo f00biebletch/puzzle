@@ -1,0 +1,3 @@
+* puzzle contains erlang code to run server and agents
+* pzmodules contains reference module
+* pzcommon contains reusable libraries for pzmodules
