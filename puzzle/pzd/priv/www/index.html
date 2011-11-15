@@ -1,0 +1,161 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-us" lang="en-us">
+<head>
+  <title>Puzzle</title>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+  <script src="http://www.google.com/jsapi?key=ABQIAAAAIJ4sIywUdbu-beESSJJiUBSZwARI8-UDIzIqibFBeAwiKtjF1RTtF9n6_933kwBO9ZzK4rfGx3IjeQ" type="text/javascript"></script>
+  <script>
+    google.load("jquery", "1.4.2");
+    google.load("jqueryui", "1.8.2");
+  </script>
+  <script src="pz/js/ui.expandable.min.js"></script>
+  <script src="pz/js/jquery.crypt.js"></script>
+  <script src="pz/js/jquery.dataTables.min.js"></script>
+  <script src="pz/js/jquery.cookie.js"></script>
+  <script src="pz/js/jquery.confirm-1.3.js"></script>
+  <script src="pz/js/json2.js"></script>
+  <script type="text/javascript" src="pz/js/2.0.0-crypto-sha1.js"></script>
+  <script type="text/javascript" src="pz/js/2.0.0-hmac-min.js"></script>
+  <script src="pz/js/view.js"></script>
+  <script src="pz/js/controller.js"></script>
+  <script src="pz/js/application.js"></script>
+  <link type="text/css" href="pz/css/smoothness/jquery-ui-1.8.2.custom.css"
+        rel="Stylesheet" />
+  <link type="text/css" href="pz/css/application.css" rel="Stylesheet" />
+
+</head>
+<body>
+  <script>
+    var clusterTimer;
+    var pollCount = 0;
+
+    function monitorCluster() {
+        pollCount = 0;
+        clusterTimer = window.setInterval(clusterUpdate, 5000);
+        app.cluster.monitor();
+    };
+
+    function stopMonitor() {
+        window.clearInterval(clusterTimer);
+    };
+
+    function clusterUpdate() {
+        if (pollCount > 60) { 
+           stopMonitor();
+           app.cluster.stopMonitor();
+        }
+        var view = new ClusterView();
+        pollCount++;
+        $.getJSON('/node/status', function(data){
+                      view.update(data);
+                  });
+    };
+
+    var app = new Puzzle();
+    $(document).ready(function () { app.init() } );
+  </script>
+
+  <div id="container">
+    <div id="busy" class="ui-widget-overlay">
+      <h1 class="loading">Loading...</h1>
+    </div>
+    <div id="tabs">
+      <ul>
+        <li><a class="Suite" href="#tst">Suites</a></li>
+        <li><a class="Cluster" href="#cluster">Clusters</a></li>
+      </ul>
+      <div id="tst">
+        <div>
+          <image src="pz/images/rfs.png" id="run-rfs" alt="Run RFS"
+                 title="Run RFS"/>
+          <image src="pz/images/cancelTst.png" id="cancel-tst" alt="Cancel Tst"
+                 title="Cancel Tst"/>
+          <div id="runRfs" title="Request for Schedule">
+            <form>
+            <fieldset>
+              <label for="rfsName">Name</label>
+              <input type="text" name="rfsName" id="rfsName"
+                class="text ui-widget-content ui-corner-all" /><br>
+              <label for="pzmPath">PZM Path</label>
+              <input type="text" name="rfsPzmPath" id="rfsPzmPath"
+                value="" class="text ui-widget-content ui-corner-all" />
+            </fieldset>
+            </form>
+          </div>
+          <button id="set-auth"
+            class="ui-button ui-state-default ui-corner-all">Login</button>
+          <div id="setAuth" title="Set Authorization Key">
+            <form>
+            <fieldset>
+              <label for="authKeyId">Key Id</label>
+              <input type="text" name="authKeyId" id="authKeyId"
+                class="text ui-widget-content ui-corner-all" /><br>
+              <label for="authKeyData">Key Data</label>
+              <input type="text" name="authKeyData" id="authKeyData"
+                value="" class="text ui-widget-content ui-corner-all" />
+            </fieldset>
+            </form>
+          </div>
+        </div><br>
+        <div class="navigation ui-helper-reset">
+          <ol class="breadcrumb-trail"></ol>
+        </div>
+        <div class="container ui-helper-reset" style="clear: both">
+        </div>
+      </div>
+      <div id="cluster" class="cluster-panel">
+        <div>
+          <image src="pz/images/addNode.png" id="create-node" alt="Create Node"
+                 title="Create Node"/>
+          <image src="pz/images/imageNode.png" id="image-nodes"
+                 alt="Image All Nodes" title="Image All Nodes"/>
+          <image src="pz/images/upgradeNode.png" id="upgrade-nodes"
+                 alt="Upgrade All Nodes" title="Upgrade All Nodes"/>
+        
+          <div id="createNode" title="Create new node">
+            <a href="cpus.html">Cpu Guide</a>
+            <form>
+              <fieldset>
+                <label for="name">Name</label>
+                <input type="text" name="name" id="name"
+                        class="text ui-widget-content ui-corner-all" /><br>
+                <label for="host">Host</label>
+                <input type="text" name="host" id="host"
+                       value="" class="text ui-widget-content ui-corner-all" />
+                <br>
+                <label for="cpuName">Cpu Name</label>
+                <input type="text" name="cpuName" id="cpuName"
+                       value="" class="text ui-widget-content ui-corner-all" />
+                <br>
+                <label for="cpuCodeName">Cpu Code Name</label>
+                <input type="text" name="cpuCodeName" id="cpuCodeName"
+                       value="" class="text ui-widget-content ui-corner-all" />
+                <br>
+              </fieldset>
+            </form>
+          </div>
+        </div>
+        <div class="container">
+          <div id="hw-cluster" class="ui-widget-content ui-corner-all cluster" >
+            <div class="ui-widget-header">core.net</div>
+            <br>
+            <table class="windows">
+            </table>
+            <table class="linux">
+            </table>
+            <table class="mac">
+            </table>
+          </div>
+          <div id="grid-cluster" class="ui-widget-content ui-corner-all cluster">
+            <div class="ui-widget-header">grid.net</div>
+            <br>
+            <table class="linux"></table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+      
+</body>
+</html>

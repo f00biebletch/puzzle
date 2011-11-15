@@ -1,0 +1,152 @@
+#!/bin/sh
+#
+# Copyright 2011 Kevin McIntire, Gianluca Filippini
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may not 
+# use this file except in compliance with the License. You may obtain a copy 
+# of the License at 
+#
+#    http://www.apache.org/licenses/LICENSE-2.0 
+#
+# Unless required by applicable law or agreed to in writing, software 
+# distributed under the License is distributed on an "AS IS" BASIS, 
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+# See the License for the specific language governing permissions and 
+# limitations under the License. 
+#
+### BEGIN INIT INFO
+# Provides: pzd
+# Required-Start: $network $local_fs
+# Required-Stop:
+# Should-Start: $named
+# Should-Stop:
+# Default-Start: 2 3 4 5
+# Default-Stop: 0 1 6
+# Short-Description: An object/document-oriented database
+# Description: Puzzle daemon.
+### END INIT INFO
+ 
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+
+NAME=PZD
+PZD_HOME=/usr/local/lib/pzd
+DAEMONUSER=user
+  
+. /lib/lsb/init-functions
+ 
+PIDFILE=/var/run/$NAME.pid 
+ 
+# Include pzd defaults if available
+if [ -f /etc/default/$NAME ] ; then
+. /etc/default/$NAME
+fi
+ 
+# Check that the user exists (if we set a user)
+# Does the user exist?
+if [ -n "$DAEMONUSER" ] ; then
+    if getent passwd | grep -q "^$DAEMONUSER:"; then
+        # Obtain the uid and gid
+        DAEMONUID=`getent passwd |grep "^$DAEMONUSER:" | awk -F : '{print $3}'`
+        DAEMONGID=`getent passwd |grep "^$DAEMONUSER:" | awk -F : '{print $4}'`
+    else
+        log_failure_msg "user $DAEMONUSER required to run $NAME does not exist."
+        exit 1
+    fi
+fi
+ 
+set -e
+ 
+running() {
+    isRunning=`ps aux|grep -i rel|grep pzd|awk '{print $2}'|sort|head -1|wc -l`
+    if [ $isRunning -eq 1 ]; then      
+        return 0
+    else
+        return 1
+    fi
+}
+
+stop_server() {
+    if ! running; then
+        return 0
+    fi
+    su $PZD_USER -c "$PZD_HOME/bin/stop"
+    kill `ps aux|grep -i rel|grep pzd|awk '{print $2}'|sort|head -1`
+    rm -f ${PZD_HOME}/pipe/erlang.pipe.*
+    return 0
+}
+
+start_server() {
+    if running; then
+        return 0
+    fi
+
+    su $PZD_USER -c "$PZD_HOME/bin/start"
+    errcode=$?
+    return 0
+}
+ 
+reload_server() {
+    if ! running; then
+        return 0
+    fi
+    
+    su $PZD_USER -c "$PZD_HOME/bin/reload"
+    errcode=$?
+    return 0
+}
+
+case "$1" in
+    start)
+        log_daemon_msg "Starting $DESC $NAME"
+        start_server || errcode=$?
+        log_end_msg $errcode
+        ;;
+    stop)
+        log_daemon_msg "Stopping $DESC" "$NAME"
+        stop_server || errcode=$?
+        log_end_msg $errcode
+        ;;
+    force-stop)
+        $0 stop
+        if running; then
+            # If it's still running try to kill it more forcefully
+            log_daemon_msg "Stopping (force) $DESC" "$NAME"
+            errcode=0
+            force_stop || errcode=$?
+            log_end_msg $errcode
+        fi
+        ;;
+    restart|force-reload)
+        log_daemon_msg "Restarting $DESC" "$NAME"
+        errcode=0
+        stop_server || errcode=$?
+        [ -n "$DIETIME" ] && sleep $DIETIME
+        start_server || errcode=$?
+        [ -n "$STARTTIME" ] && sleep $STARTTIME
+        running || errcode=$?
+        log_end_msg $errcode
+        ;;
+    status)
+        log_daemon_msg "Checking status of $DESC" "$NAME"
+        if running; then      
+            echo "PZD is running"
+            return 1
+        else
+            echo "PZD is down"
+            return 0
+        fi
+        ;;
+    reload)
+        log_daemon_msg "Reloading $DESC" "$NAME"
+        reload_server || errcode=$?
+        log_end_msg $errcode
+        ;;
+    *)
+        N=/etc/init.d/$NAME
+        echo "Usage: $N {start|stop|force-stop|restart|force-reload|status}" >&2
+        exit 1
+        ;;
+esac
+
+exit 0
+ 

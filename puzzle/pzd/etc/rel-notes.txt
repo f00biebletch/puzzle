@@ -1,0 +1,65 @@
+- make release
+- run bootstrap.sh with proper variables
+- start mongo
+- bin/start
+- http://127.0.0.1/pz
+- add an access key by using to_erl and using access_key api; FIXIT TODO need a script to do this!
+- to start slave, fight all kinds of issues
+  - ssh path so erl execs
+  - domain names - lots of aliases, everything must resolve via dns thx to erl slave
+  - passwordless ssh to all nodes
+
+
+[user@pzctrl rel]$ erl
+Erlang R13B02 (erts-5.7.3) [source] [64-bit] [smp:16:16] [rq:16] [async-threads:0] [hipe] [kernel-poll:false]
+
+Eshell V5.7.3  (abort with ^G)
+1> systools:make_script("pz_rel-1",[no_module_tests, {path, ["/home/user/pz/ebin","/home/user/pz/deps/*/ebin","/home/user/pz/deps/*/deps/*/ebin"]}]).
+ok
+2> systools:make_tar("pz_rel-1",[no_module_tests, {path, ["/home/user/pz/ebin","/home/user/pz/deps/*/ebin","/home/user/pz/deps/*/deps/*/ebin"]}, {dirs, [include, src, priv, etc, test]}, {erts, "/usr/local/lib/erlang"}]).
+ok
+3> 
+BREAK: (a)bort (c)ontinue (p)roc info (i)nfo (l)oaded
+       (v)ersion (k)ill (D)b-tables (d)istribution
+
+you need to edit the relevant values, I used:
+
+administrators-MacBook-Pro-38:pzd kevinmcintire$ erl
+Erlang R14B01 (erts-5.8.2) [source] [64-bit] [smp:4:4] [rq:4] [async-threads:0] [hipe] [kernel-poll:false]
+
+Eshell V5.8.2  (abort with ^G)
+1> 
+1> systools:make_script("pzd_rel-1",[no_module_tests, {path, ["/Users/kevinmcintire/etc/qa/apps/puzzle/pzd/ebin","/Users/kevinmcintire/etc/qa/apps/puzzle/pzd/deps/*/ebin","/Users/kevinmcintire/etc/qa/apps/puzzle/pzd/deps/*/deps/*/ebin"]}]).
+mochiweb: File not found: "mochiweb.app"
+
+error
+2> systools:make_script("pzd_rel-1",[no_module_tests, {path, ["/Users/kevinmcintire/etc/qa/apps/puzzle/pzd/ebin","/Users/kevinmcintire/etc/qa/apps/puzzle/pzd/deps/*/ebin","/Users/kevinmcintire/etc/qa/apps/puzzle/pzd/deps/*/deps/*/ebin"]}]).
+webmachine: No valid version ("1.9.1") of .app file found. Found file "/Users/kevinmcintire/etc/qa/apps/puzzle/pzd/deps/webmachine/ebin/webmachine.app" with version "1.9.0"
+
+error
+3> systools:make_script("pzd_rel-1",[no_module_tests, {path, ["/Users/kevinmcintire/etc/qa/apps/puzzle/pzd/ebin","/Users/kevinmcintire/etc/qa/apps/puzzle/pzd/deps/*/ebin","/Users/kevinmcintire/etc/qa/apps/puzzle/pzd/deps/*/deps/*/ebin"]}]).
+ok
+4> systools:make_tar("pzd_rel-1",[no_module_tests, {path, ["/Users/kevinmcintire/etc/qa/apps/puzzle/pzd/ebin","/Users/kevinmcintire/etc/qa/apps/puzzle/pzd/deps/*/ebin","/Users/kevinmcintire/etc/qa/apps/puzzle/pzd/deps/*/deps/*/ebin"]}],{dirs, [include, src, priv, etc, test]}, {erts, "/usr/local/lib/erlang"}]).
+* 1: syntax error before: ']'
+4> systools:make_tar("pzd_rel-1",[no_module_tests, {path, ["/Users/kevinmcintire/etc/qa/apps/puzzle/pzd/ebin","/Users/kevinmcintire/etc/qa/apps/puzzle/pzd/deps/*/ebin","/Users/kevinmcintire/etc/qa/apps/puzzle/pzd/deps/*/deps/*/ebin"]},{dirs, [include, src, priv, etc, test]}, {erts, "/usr/local/lib/erlang"}]).  
+Cannot add file /usr/local/lib/erlang/erts-5.7.3/bin to tar file - /usr/local/lib/erlang/erts-5.7.3/bin: no such file or directory
+error
+5> systools:make_tar("pzd_rel-1",[no_module_tests, {path, ["/Users/kevinmcintire/etc/qa/apps/puzzle/pzd/ebin","/Users/kevinmcintire/etc/qa/apps/puzzle/pzd/deps/*/ebin","/Users/kevinmcintire/etc/qa/apps/puzzle/pzd/deps/*/deps/*/ebin"]},{dirs, [include, src, priv, etc, test]}, {erts, "/opt/local/lib/erlang"}]).
+Cannot add file /opt/local/lib/erlang/erts-5.7.3/bin to tar file - /opt/local/lib/erlang/erts-5.7.3/bin: no such file or directory
+error
+6> systools:make_tar("pzd_rel-1",[no_module_tests, {path, ["/Users/kevinmcintire/etc/qa/apps/puzzle/pzd/ebin","/Users/kevinmcintire/etc/qa/apps/puzzle/pzd/deps/*/ebin","/Users/kevinmcintire/etc/qa/apps/puzzle/pzd/deps/*/deps/*/ebin"]},{dirs, [include, src, priv, etc, test]}, {erts, "/opt/local/lib/erlang"}]).
+ok
+7> halt().
+
+I had to fix mochweb app to get rid of syntax_check, compiler, ssl for some reason :(
+
+had to run erl -pa /Users/kevinmcintire/etc/qa/apps/puzzle/pzd/ebin/ -pa /Users/kevinmcintire/etc/qa/apps/puzzle/pzd/deps/*/ebin from rel dir
+
+and then 
+mkdir /usr/local/lib/pzd
+
+and then copy tgz there
+
+and then extract tgz
+
+and then     

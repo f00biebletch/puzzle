@@ -1,0 +1,13 @@
+{release, {"pzd_rel", "1"},
+          {erts, "5.8.2"},
+          [{erlmongo,"0.1"},
+           {kernel,"2.14.2"},
+           {crypto,"2.0.2"},
+           {sasl,"2.1.9.2"},
+           {stdlib,"1.17.2"},
+           {xmerl, "1.2.7"},
+           {inets, "5.5.1"},
+           {mochiweb,"2.3.0"},
+           {webmachine,"1.9.0"},
+           {pzd,"0.7.0"}]
+}.

@@ -1,0 +1,114 @@
+#! /bin/sh
+#
+# Copyright 2011 Kevin McIntire, Gianluca Filippini
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may not 
+# use this file except in compliance with the License. You may obtain a copy 
+# of the License at 
+#
+#    http://www.apache.org/licenses/LICENSE-2.0 
+#
+# Unless required by applicable law or agreed to in writing, software 
+# distributed under the License is distributed on an "AS IS" BASIS, 
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+# See the License for the specific language governing permissions and 
+# limitations under the License. 
+#
+# start / stop script for pzd
+#
+# pzd - this script starts and stops the pzd daemon
+#
+# chkconfig:   - 85 15 
+# description:  Puzzle
+# processname: erl
+# config:      /etc/sysconfig/mongodb
+. /etc/init.d/functions
+# Source function library.
+#. /lib/lsb/init-functions
+# Source networking configuration.
+. /etc/sysconfig/network
+
+# Check that networking is up.
+[ "$NETWORKING" = "no" ] && exit 0
+ 
+retval=0
+NAME=PZD
+
+PZD_HOME=/usr/local/lib/pzd
+PZD_USER=user
+
+start() {
+    if ! rh_status; then
+        return 0
+    fi
+
+    su $PZD_USER -c "$PZD_HOME/bin/start"
+    return $?
+}
+
+stop() {
+    if rh_status; then
+        return 0
+    fi
+    echo "Stopping PZD daemon"
+    
+    su $PZD_USER -c "$PZD_HOME/bin/stop"
+    kill `ps aux|grep -i rel|grep pzd|awk '{print $2}'|sort|head -1`
+    rm -f ${PZD_HOME}/pipe/erlang.pipe.*
+}
+
+restart() {
+    stop
+    start
+}
+
+reload() {
+    if rh_status; then
+        return 0
+    fi
+
+    su $PZD_USER -c "$PZD_HOME/bin/reload"
+    return $?
+}
+
+rh_status() {
+  isRunning=`ps aux|grep -i rel|grep pzd|awk '{print $2}'|sort|head -1|wc -l`
+  if [ $isRunning -eq 1 ]; then      
+      echo "PZD is running"
+      return 1
+  else
+      echo "PZD is down"
+      return 0
+  fi
+}
+ 
+rh_status_q() {
+    rh_status >/dev/null 2>&1
+}
+ 
+case "$1" in
+    start)
+        #rh_status_q && exit 0
+        $1
+        ;;
+    stop)
+        #rh_status_q || exit 0
+        $1
+        ;;
+    restart)
+        $1
+        ;;
+    reload)
+        $1
+        ;;
+    status)
+        rh_status
+        ;;
+    condrestart|try-restart)
+        rh_status_q || exit 0
+                                ;;
+                *)
+    echo "Usage: $0 {start|stop|status|restart|condrestart|try-restart}"
+    exit 2
+esac
+

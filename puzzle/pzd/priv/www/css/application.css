@@ -1,0 +1,179 @@
+.raw
+{ 
+  font-family: courier;
+  font-size: 0.6em;
+}
+
+.loading
+{ 
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  width: 50%;
+  height: 50%;
+  margin: auto;
+}
+
+#busy
+{ 
+  display: none;
+  z-index: 0
+}
+
+ul
+{ 
+  list-style-type: none;
+}
+
+.key
+{ 
+  font-weight: bold;
+}
+
+.job
+{
+  overflow: auto;
+  width: 250px;
+}
+
+.error
+{ 
+  font-weight: bold;
+  color: red;
+}
+
+.job .content
+{ 
+  font-size: 0.6em;
+}
+
+.status-cluster
+{ 
+  background: white;
+}
+
+.status-running
+{ 
+  background: green;
+}
+
+.status-staging
+{ 
+  background: orange;
+}
+.status-idle
+{ 
+  background: yellow;
+}
+
+.status-down
+{ 
+  background: red;
+}
+
+.node .proplist
+{ 
+  padding: 0;
+  font-size: 0.6em;
+}
+
+.properties
+{ 
+  font-size: 0.8em;
+}
+#container
+{ 
+  height: 100%;
+  overflow: auto;
+}
+
+.container
+{ 
+  padding: 10;
+}
+
+#tabs
+{ 
+  height: 100%;
+}
+
+html, body
+{ 
+  height: 100%;
+}
+
+body 
+{
+  margin: 0;
+  padding: 0;
+  background: #FFF;
+  height: 100%;
+  font-family:arial;
+}
+
+.breadcrumb
+{
+  text-decoration: none;
+  font-face: bold;
+  font-size: 0.8em;
+}
+
+.breadcrumb-trail
+{ 
+}
+
+.breadcrumb-trail li
+{ 
+  display: inline;
+  list-style-type: none;
+}
+
+#hw-cluster
+{ 
+  width: 60%;
+  float: left;
+  overflow: auto;
+}
+
+#grid-cluster
+{ 
+  width: 30%;
+  float: right;
+  overflow: auto;
+}
+
+#hw-cluster .linux
+{ 
+  float: left;
+  width: 30%;
+}
+
+#hw-cluster .windows
+{ 
+  float: right;
+  width: 30%;
+}
+
+#hw-cluster .mac
+{ 
+  width: 30%;
+}
+
+.jobFlow ol li
+{ 
+  padding: 10px;
+  float:left;
+  list-style-type: none;
+}
+
+.priorityList li
+{ 
+  padding: 10px;
+}
+
+.priorityList li
+{
+  clear: both;
+}
